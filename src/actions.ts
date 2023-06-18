@@ -30,7 +30,7 @@ export const init = async ({ template }: InitArgs) => {
     }
   ]);
 
-  const schemaPath = path.join(answers.path, 'brick.schema');
+  const schemaPath = path.join(answers.path, 'brick.graphqls');
   await writeFile('brick.yml', yaml.dump({ schema: schemaPath }));
 
   await mkdir(answers.path, {recursive: true})
