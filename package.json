@@ -1,7 +1,7 @@
 {
   "name": "@brick-cms/cli",
-  "version": "1.0.0",
-  "description": "Companion CLI for brickcms.io",
+  "version": "1.0.1",
+  "description": "Companion CLI for brick-cms.com",
   "main": "dist/index.js",
   "repository": "https://github.com/Brick-CMS/brick-cli",
   "author": "Steven Ireland <steven.ireland@protonmail.com>",

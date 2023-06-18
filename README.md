@@ -1,6 +1,6 @@
 # Brick CLI
 
-This is the command line interface for working with Brick Schemas on brickcms.io
+This is the command line interface for working with Brick Schemas on brick-cms.com
 
 ## Installation
 
