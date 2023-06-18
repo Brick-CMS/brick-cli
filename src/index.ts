@@ -25,5 +25,5 @@ const {subparser, ...args} = result;
 if (subparser in actions) {
   actions[subparser](args);
 } else {
-  console.error("hmm")
+  parser.print_help()
 }

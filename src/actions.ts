@@ -35,8 +35,6 @@ export const init = async ({ template }: InitArgs) => {
 
   await mkdir(answers.path, {recursive: true})
   await writeFile(schemaPath, templates[answers.template])
-
-  console.log(answers);
 }
 
 export const push = () => {
