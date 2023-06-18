@@ -30,10 +30,11 @@ export const init = async ({ template }: InitArgs) => {
     }
   ]);
 
-  await writeFile('brick.yml', yaml.dump({ schema: answers.path }));
+  const schemaPath = path.join(answers.path, 'brick.schema');
+  await writeFile('brick.yml', yaml.dump({ schema: schemaPath }));
 
   await mkdir(answers.path, {recursive: true})
-  await writeFile(path.join(answers.path, 'bricks.schema'), templates[answers.template])
+  await writeFile(schemaPath, templates[answers.template])
 
   console.log(answers);
 }
