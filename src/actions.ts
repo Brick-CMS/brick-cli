@@ -1,11 +1,21 @@
-import { mkdir, writeFile } from 'fs/promises';
+import fs, { promises as fsPromises } from 'fs';
 import inquirer from 'inquirer'
 import yaml from 'js-yaml';
 import path from 'path';
 import templates from './schemas';
+import http from 'http';
 
 interface InitArgs {
   template: string | undefined
+}
+
+interface WithApiKey {
+  api_key: string
+}
+
+interface BrickConfig {
+  schema: string,
+  slug: string,
 }
 
 export const init = async ({ template }: InitArgs) => {
@@ -36,14 +46,49 @@ export const init = async ({ template }: InitArgs) => {
   ]);
 
   const schemaPath = path.join(answers.path, 'brick.graphqls');
-  await writeFile('brick.yml', yaml.dump({ slug: answers.slug, schema: schemaPath }));
+  await fsPromises.writeFile('brick.yml', yaml.dump({ slug: answers.slug, schema: schemaPath } as BrickConfig));
 
-  await mkdir(answers.path, {recursive: true})
-  await writeFile(schemaPath, templates[answers.template])
+  await fsPromises.mkdir(answers.path, {recursive: true})
+  await fsPromises.writeFile(schemaPath, templates[answers.template])
 }
 
-export const push = () => {
+export const push = (args: WithApiKey) => {
+  const document = yaml.load(fs.readFileSync(path.resolve('brick.yml')).toString()) as BrickConfig
+  const schema = document.schema;
+  const sdl = fs.readFileSync(path.resolve(schema)).toString();
 
+  const data = JSON.stringify({
+    sdl
+  });
+
+  console.log("Uploading schema...")
+
+  const options = {
+    hostname: 'localhost',
+    port: 3000,
+    path: '/api/upload',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': data.length,
+      'Authorization': `Bearer ${args.api_key || process.env.BRICK_API_KEY}`
+    },
+  };
+
+  const req = http.request(options, res => {
+    console.log(`statusCode: ${res.statusCode}`);
+
+    res.on('data', d => {
+      process.stdout.write(d);
+    });
+  });
+
+  req.on('error', error => {
+    console.error("Something went wrong while uploading schema\n", error);
+  });
+
+  req.write(data);
+  req.end();
 }
 
 export const pull = () => {

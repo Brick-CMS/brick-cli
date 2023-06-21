@@ -1,6 +1,6 @@
 {
   "name": "@brick-cms/cli",
-  "version": "1.0.4",
+  "version": "1.0.6",
   "description": "Companion CLI for brick-cms.com",
   "main": "dist/index.js",
   "repository": "https://github.com/Brick-CMS/brick-cli",
