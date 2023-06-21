@@ -13,9 +13,14 @@ export const init = async ({ template }: InitArgs) => {
   const answers = await inquirer.prompt([
     {
       type: 'input',
-      default: '.',
+      default: './brick',
       name: 'path',
-      message: 'Directory for graphql schema file (bricks.graphqls)'
+      message: 'Directory for graphql schema files'
+    },
+    {
+      type: 'input',
+      name: 'slug',
+      message: 'Organization slug (log into Brick for this)'
     },
     {
       type: 'list',
@@ -31,7 +36,7 @@ export const init = async ({ template }: InitArgs) => {
   ]);
 
   const schemaPath = path.join(answers.path, 'brick.graphqls');
-  await writeFile('brick.yml', yaml.dump({ schema: schemaPath }));
+  await writeFile('brick.yml', yaml.dump({ slug: answers.slug, schema: schemaPath }));
 
   await mkdir(answers.path, {recursive: true})
   await writeFile(schemaPath, templates[answers.template])
