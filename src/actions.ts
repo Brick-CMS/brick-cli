@@ -64,8 +64,8 @@ export const push = (args: WithApiKey) => {
   console.log("Uploading schema...")
 
   const options = {
-    hostname: 'localhost',
-    port: 3000,
+    hostname: process.env.UPLOAD_HOSTNAME || 'brick-cms.com',
+    port: process.env.UPLOAD_PORT || 80,
     path: '/api/upload',
     method: 'POST',
     headers: {
