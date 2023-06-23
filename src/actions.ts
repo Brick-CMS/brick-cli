@@ -3,7 +3,7 @@ import inquirer from 'inquirer'
 import yaml from 'js-yaml';
 import path from 'path';
 import templates from './schemas';
-import http from 'http';
+import fetch from 'node-fetch';
 
 interface InitArgs {
   template: string | undefined
@@ -52,7 +52,7 @@ export const init = async ({ template }: InitArgs) => {
   await fsPromises.writeFile(schemaPath, templates[answers.template])
 }
 
-export const push = (args: WithApiKey) => {
+export const push = async (args: WithApiKey) => {
   const document = yaml.load(fs.readFileSync(path.resolve('brick.yml')).toString()) as BrickConfig
   const schema = document.schema;
   const sdl = fs.readFileSync(path.resolve(schema)).toString();
@@ -63,32 +63,23 @@ export const push = (args: WithApiKey) => {
 
   console.log("Uploading schema...")
 
-  const options = {
-    hostname: process.env.UPLOAD_HOSTNAME || 'brick-cms.com',
-    port: process.env.UPLOAD_PORT || 80,
-    path: '/api/upload',
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': data.length,
-      'Authorization': `Bearer ${args.api_key || process.env.BRICK_API_KEY}`
-    },
-  };
-
-  const req = http.request(options, res => {
-    console.log(`statusCode: ${res.statusCode}`);
-
-    res.on('data', d => {
-      process.stdout.write(d);
+  try {
+    const response = await fetch(`${process.env.UPLOAD_HOST || 'https://brick-cms.com'}/api/upload`, {
+      method: 'post',
+      headers: {
+        'Authorization': `Bearer ${args.api_key || process.env.BRICK_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: data
     });
-  });
 
-  req.on('error', error => {
-    console.error("Something went wrong while uploading schema\n", error);
-  });
-
-  req.write(data);
-  req.end();
+    if (response.ok) {
+      console.log("Schema Successfully Uploaded")
+    }
+  } catch (e) {
+    console.log("Unable to reach Brick");
+  }
+  console.error("Problem Uploading. Check your API key.");
 }
 
 export const pull = () => {
