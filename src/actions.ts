@@ -75,6 +75,7 @@ export const push = async (args: WithApiKey) => {
 
     if (response.ok) {
       console.log("Schema Successfully Uploaded")
+      return;
     }
   } catch (e) {
     console.log("Unable to reach Brick");
