@@ -8,7 +8,7 @@ This is the command line interface for working with Brick Schemas on brick-cms.c
 
 ## Getting Started
 
-If you've just installed the CLI, you'll also want to head over to brickcms.io/signup and create an account.
+If you've just installed the CLI, you'll also want to head over to https://brick-cms.com/signup and create an account.
 You can then create an API key from within your organization settings. 
 
 From there, you can take the following steps to get started:
@@ -42,7 +42,7 @@ type Query {
 ```yaml
 # brick-codegen.yml
 overwrite: true
-schema: "https://api.brick-cms.com/my-organization"
+schema: "https://api.brick-cms.com/my-organization-slug"
 generates:
   src/bricktypes.ts:
     plugins:
@@ -78,5 +78,5 @@ query GetPosts {
 
 ### Documentation
 
-For further reading, check out brick-cms.com/docs
+For further reading, check out https://brick-cms.com/docs
 
