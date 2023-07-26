@@ -13,6 +13,10 @@ interface WithApiKey {
   api_key: string
 }
 
+interface WithForce {
+  force: boolean
+}
+
 interface BrickConfig {
   schema: string,
   slug: string,
@@ -52,7 +56,7 @@ export const init = async ({ template }: InitArgs) => {
   await fsPromises.writeFile(schemaPath, templates[answers.template])
 }
 
-export const push = async (args: WithApiKey) => {
+export const push = async (args: WithApiKey & WithForce) => {
   const document = yaml.load(fs.readFileSync(path.resolve('brick.yml')).toString()) as BrickConfig
   const schema = document.schema;
   const sdl = fs.readFileSync(path.resolve(schema)).toString();
@@ -64,7 +68,8 @@ export const push = async (args: WithApiKey) => {
   console.log("Uploading schema...")
 
   try {
-    const response = await fetch(`${process.env.UPLOAD_HOST || 'https://brick-cms.com'}/api/upload`, {
+    const searchParams = {force: String(args.force)}
+    const response = await fetch(`${process.env.UPLOAD_HOST || 'https://brick-cms.com'}/api/upload?${new URLSearchParams(searchParams).toString()}`, {
       method: 'post',
       headers: {
         'Authorization': `Bearer ${args.api_key || process.env.BRICK_API_KEY}`,
@@ -75,12 +80,25 @@ export const push = async (args: WithApiKey) => {
 
     if (response.ok) {
       console.log("Schema Successfully Uploaded")
+      const body = await response.json();
+
+      if (body.info?.length > 0 || body.error.length > 0) {
+        console.log("Schema diffs reported:\n");
+        console.log(body.info, body.error);
+      }
       return;
+    } else if (response.status === 401) {
+      console.error("Permissions issue when Uploading Schema. Check your API key.")
+    } else {
+      console.error("Problem Uploading Schema.")
+
+      const body = await response.json();
+      console.error(body.error);
+      console.log("If you wish to push anyway, you can pass -f to force push the schema.")
     }
   } catch (e) {
     console.log("Unable to reach Brick");
   }
-  console.error("Problem Uploading. Check your API key.");
 }
 
 export const pull = () => {
